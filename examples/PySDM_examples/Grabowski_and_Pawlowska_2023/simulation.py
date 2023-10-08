@@ -7,7 +7,12 @@ from PySDM.backends.impl_numba.test_helpers import scipy_ode_condensation_solver
 from PySDM.dynamics import AmbientThermodynamics, Condensation
 from PySDM.environments import Parcel
 from PySDM.initialisation import equilibrate_wet_radii
-from PySDM.initialisation.sampling.spectral_sampling import ConstantMultiplicity
+from PySDM.initialisation.sampling.spectral_sampling import (
+    ConstantMultiplicity,
+    Linear,
+    Logarithmic,
+    UniformRandom,
+)
 from PySDM.physics import si
 
 
@@ -15,9 +20,9 @@ class Simulation(BasicSimulation):
     def __init__(
         self,
         settings,
+        sampling_class=ConstantMultiplicity,
         products=None,
         scipy_solver=False,
-        sampling_class=ConstantMultiplicity,
     ):
         env = Parcel(
             dt=settings.timestep,
@@ -50,7 +55,10 @@ class Simulation(BasicSimulation):
         kappa = tuple(settings.aerosol_modes_by_kappa.keys())[0]
         spectrum = settings.aerosol_modes_by_kappa[kappa]
 
-        r_dry, n_per_volume = sampling_class(spectrum).sample(settings.n_sd)
+        # r_dry, n_per_volume = sampling_class(spectrum, size_range=(1e-9,0.5e-6)).sample(settings.n_sd,backend=CPU(formulae=settings.formulae))
+        r_dry, n_per_volume = sampling_class(spectrum).sample(
+            settings.n_sd, backend=CPU(formulae=settings.formulae)
+        )
         v_dry = settings.formulae.trivia.volume(radius=r_dry)
         attributes["multiplicity"] = np.append(
             attributes["multiplicity"], n_per_volume * volume
