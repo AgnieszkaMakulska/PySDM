@@ -18,9 +18,10 @@ class Settings:
         vertical_velocity: float,
         dt: float,
         n_sd: int,
-        initial_temperature: float = 283 * si.K,
+        t_max: float = 1000 * si.s,
+        initial_temperature: float = 273 * si.K,
         initial_pressure: float = 900 * si.mbar,
-        initial_relative_humidity: float = 0.97,
+        initial_relative_humidity: float = 1.02,
         displacement: float = 1000 * si.m,
         mass_accommodation_coefficient: float = 0.3,
         rtol_thd: float = condensation_tolerance,
@@ -54,6 +55,32 @@ class Settings:
                 )
             },
         }[aerosol]
+        # self.aerosol_modes_by_kappa = {
+        #     "pristine": {
+        #         1.28: Sum(
+        #             (
+        #                 Lognormal(
+        #                     norm_factor=125 / si.cm ** 3, m_mode=5 * si.um, s_geom=1.2
+        #                 ),
+        #                 Lognormal(
+        #                     norm_factor=65 / si.cm ** 3, m_mode=10 * si.um, s_geom=1.7
+        #                 ),
+        #             )
+        #         )
+        #     },
+        #     "polluted": {
+        #         1.28: Sum(
+        #             (
+        #                 Lognormal(
+        #                     norm_factor=160 / si.cm ** 3, m_mode=1 * si.um, s_geom=1.36
+        #                 ),
+        #                 Lognormal(
+        #                     norm_factor=380 / si.cm ** 3, m_mode=3 * si.um, s_geom=1.57
+        #                 ),
+        #             )
+        #         )
+        #     },
+        # }[aerosol]
 
         const = self.formulae.constants
         self.vertical_velocity = vertical_velocity
@@ -66,7 +93,7 @@ class Settings:
             )
         )
         self.initial_vapour_mixing_ratio = const.eps * pv0 / (initial_pressure - pv0)
-        self.t_max = displacement / vertical_velocity
+        self.t_max = t_max  # displacement / vertical_velocity
         self.timestep = dt
         self.output_interval = self.timestep
         self.rtol_thd = rtol_thd
